@@ -4,54 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal Flip | Virinchi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&display=swap" rel="stylesheet">
-
+    <title>Pro Toss | Virinchi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #fcfcfc;
-            --text-main: #2d3436;
-            --accent: #000000;
-            --coin-gold: #f1c40f;
-            --coin-silver: #dfe6e9;
-            --shadow: rgba(0, 0, 0, 0.08);
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background: #fdfdfd;
             font-family: 'Inter', sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
 
-        .app-card {
-            background: white;
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px var(--shadow);
-            text-align: center;
-            width: 300px;
-            border: 1px solid #f0f0f0;
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 50px;
         }
 
-        h1 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            margin-bottom: 50px;
-            text-transform: uppercase;
-            color: #d1d1d1;
-        }
-
-        .coin-container {
-            margin: 0 auto 40px;
-            width: 140px;
-            height: 140px;
+        /* The Coin */
+        .coin-wrap {
+            position: absolute;
+            bottom: 250px;
+            /* Aligned with thumb */
+            width: 110px;
+            height: 110px;
+            z-index: 10;
             perspective: 1000px;
         }
 
@@ -60,8 +46,7 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            /* Transition time is handled by JS for variable speed */
-            transition: transform 2s cubic-bezier(0.15, 0.85, 0.35, 1.05);
+            transition: transform 2s cubic-bezier(0.2, 0, 0.2, 1);
         }
 
         .face {
@@ -73,129 +58,136 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2rem;
-            font-weight: 600;
+            font-size: 2.5rem;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         .heads {
-            background: var(--coin-gold);
-            color: white;
+            background: #f1c40f;
+            color: #b8860b;
             transform: rotateY(0deg);
         }
 
         .tails {
-            background: var(--coin-silver);
-            color: #636e72;
+            background: #ced6e0;
+            color: #7f8c8d;
             transform: rotateY(180deg);
         }
 
+        /* Real Hand Image */
+        .hand-img {
+            width: 280px;
+            z-index: 5;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        /* Physics Animations */
+        @keyframes coin-jump {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-400px) scale(1.6);
+            }
+
+            /* Flies toward screen */
+            100% {
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes hand-flick {
+            0% {
+                transform: translateY(0);
+            }
+
+            15% {
+                transform: translateY(25px);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .animate-coin {
+            animation: coin-jump 2s ease-in-out;
+        }
+
+        .animate-hand {
+            animation: hand-flick 0.5s ease;
+        }
+
         .flip-btn {
-            background: var(--accent);
-            color: white;
+            background: #f1c40f;
             border: none;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 500;
+            padding: 20px 80px;
+            border-radius: 15px;
+            font-size: 1.4rem;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
+            box-shadow: 0 8px 0 #d4af37;
+            margin-top: 30px;
+            transition: 0.1s;
         }
 
         .flip-btn:active {
-            transform: scale(0.98);
-        }
-
-        .flip-btn:disabled {
-            background: #eee;
-            color: #bbb;
-            cursor: not-allowed;
-        }
-
-        .status {
-            margin-top: 25px;
-            font-size: 0.85rem;
-            color: #a0a0a0;
-            height: 20px;
-        }
-
-        /* Credits Style */
-        .credits {
-            margin-top: 30px;
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-            color: #ccc;
-            text-transform: uppercase;
-        }
-
-        .credits span {
-            color: #999;
-            font-weight: 600;
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #d4af37;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="app-card">
-        <h1>Quantum Toss</h1>
-
-        <div class="coin-container">
-            <div id="coin" class="coin">
-                <div class="face heads">H</div>
+    <div class="game-container">
+        <div class="coin-wrap" id="coinWrap">
+            <div class="coin" id="coin">
+                <div class="face heads">★</div>
                 <div class="face tails">T</div>
             </div>
         </div>
 
-        <button id="flipBtn" class="flip-btn">Flip</button>
-        <div id="status" class="status">Tap to start</div>
-    </div>
+        <img src="/static/hand.png" class="hand-img" id="hand" alt="Fist">
 
-    <div class="credits">Created by <span>GEMINI</span></div>
+        <button class="flip-btn" id="flipBtn">FLIP COIN</button>
+    </div>
 
     <script>
         const coin = document.getElementById('coin');
+        const coinWrap = document.getElementById('coinWrap');
+        const hand = document.getElementById('hand');
         const flipBtn = document.getElementById('flipBtn');
-        const statusText = document.getElementById('status');
-        let currentRotation = 0;
+        let currentRot = 0;
 
         flipBtn.addEventListener('click', async () => {
             flipBtn.disabled = true;
-            statusText.innerText = "Flipping...";
+            hand.classList.add('animate-hand');
 
-            // 1. Variable Speed: Randomize the duration between 2.2s and 2.8s
-            const duration = 2200 + Math.random() * 600;
-            coin.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.35, 1.05)`;
+            const res = await fetch(`/flip?t=${Date.now()}`);
+            const data = await res.json();
 
-            try {
-                // 2. Cache Buster: Added timestamp (?t=...) to ensure unique backend calls
-                const response = await fetch(`/flip?t=${Date.now()}`);
-                const data = await response.json();
-                const result = data.result;
+            coinWrap.classList.add('animate-coin');
 
-                // 3. Realistic Rotation Math
-                const extraSpins = (5 + Math.floor(Math.random() * 5)) * 360;
-                const targetSide = (result === 'heads') ? 0 : 180;
+            // Randomize rotations (min 8 full spins)
+            const spins = (8 + Math.floor(Math.random() * 5)) * 360;
+            const land = (data.result === 'heads') ? 0 : 180;
+            currentRot += spins + land;
 
-                // Ensure the coin always spins forward
-                currentRotation += extraSpins;
+            if (currentRot % 360 !== land) currentRot += 180;
+            coin.style.transform = `rotateY(${currentRot}deg)`;
 
-                // Calculate landing so it ends on the correct face
-                if (currentRotation % 360 !== targetSide) {
-                    currentRotation += 180;
-                }
-
-                coin.style.transform = `rotateY(${currentRotation}deg)`;
-
-                setTimeout(() => {
-                    statusText.innerText = result.toUpperCase();
-                    flipBtn.disabled = false;
-                }, duration);
-
-            } catch (error) {
-                statusText.innerText = "System Error";
+            setTimeout(() => {
+                hand.classList.remove('animate-hand');
+                coinWrap.classList.remove('animate-coin');
                 flipBtn.disabled = false;
-            }
+            }, 2000);
         });
     </script>
 </body>
